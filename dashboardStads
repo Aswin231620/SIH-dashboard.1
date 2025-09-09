@@ -1,0 +1,124 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  MapPin, 
+  ListTodo, 
+  Bell, 
+  Stethoscope,
+  Shield,
+  TrendingUp 
+} from "lucide-react";
+
+export default function DashboardStats({ farms, tasks, alerts, diseaseReports, user }) {
+  const getStatsForUser = () => {
+    const stats = [
+      {
+        title: "Total Farms",
+        value: farms.length,
+        icon: MapPin,
+        color: "emerald",
+        description: "Farms under management"
+      },
+      {
+        title: "Pending Tasks", 
+        value: tasks.filter(t => t.status === 'pending').length,
+        icon: ListTodo,
+        color: "blue",
+        description: "Tasks awaiting completion"
+      },
+      {
+        title: "Active Alerts",
+        value: alerts.filter(a => !a.read).length,
+        icon: Bell,
+        color: "amber",
+        description: "Unread notifications"
+      }
+    ];
+
+    if (user?.role === 'farmer') {
+      const highRiskFarms = farms.filter(f => f.risk_level === 'high').length;
+      stats.push({
+        title: "High Risk Farms",
+        value: highRiskFarms,
+        icon: Shield,
+        color: "red",
+        description: "Farms needing attention"
+      });
+    }
+
+    if (user?.role === 'veterinarian' || user?.role === 'extension_worker') {
+      stats.push({
+        title: "Disease Reports",
+        value: diseaseReports?.length || 0,
+        icon: Stethoscope,
+        color: "purple",
+        description: "Active disease cases"
+      });
+    }
+
+    return stats;
+  };
+
+  const colorClasses = {
+    emerald: {
+      bg: "bg-emerald-500",
+      text: "text-emerald-600",
+      lightBg: "bg-emerald-50"
+    },
+    blue: {
+      bg: "bg-blue-500", 
+      text: "text-blue-600",
+      lightBg: "bg-blue-50"
+    },
+    amber: {
+      bg: "bg-amber-500",
+      text: "text-amber-600", 
+      lightBg: "bg-amber-50"
+    },
+    red: {
+      bg: "bg-red-500",
+      text: "text-red-600",
+      lightBg: "bg-red-50"
+    },
+    purple: {
+      bg: "bg-purple-500",
+      text: "text-purple-600",
+      lightBg: "bg-purple-50"
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {getStatsForUser().map((stat, index) => (
+        <motion.div
+          key={stat.title}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}
+        >
+          <Card className="relative overflow-hidden hover:shadow-lg transition-all duration-300">
+            <div className={`absolute top-0 right-0 w-20 h-20 transform translate-x-6 -translate-y-6 ${colorClasses[stat.color].bg} rounded-full opacity-10`} />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">
+                {stat.title}
+              </CardTitle>
+              <div className={`p-2 rounded-lg ${colorClasses[stat.color].lightBg}`}>
+                <stat.icon className={`w-4 h-4 ${colorClasses[stat.color].text}`} />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {stat.value}
+              </div>
+              <div className="flex items-center text-xs text-gray-500">
+                <TrendingUp className="w-3 h-3 mr-1" />
+                {stat.description}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
