@@ -1,0 +1,197 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { 
+  Plus, 
+  FileText, 
+  Stethoscope, 
+  Map,
+  Calendar,
+  MessageCircle,
+  BookOpen,
+  Shield
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+
+export default function QuickActionsCard({ user }) {
+  const getActionsForRole = () => {
+    const baseActions = [
+      {
+        title: "View Farm Atlas",
+        description: "Interactive map of all farms",
+        icon: Map,
+        url: createPageUrl("FarmAtlas"),
+        color: "emerald"
+      },
+      {
+        title: "Upload Health Log",
+        description: "Record animal health data",
+        icon: Stethoscope,
+        url: createPageUrl("HealthLogs"),
+        color: "blue"
+      }
+    ];
+
+    if (user?.role === 'farmer') {
+      return [
+        {
+          title: "Add New Farm",
+          description: "Register a new farm",
+          icon: Plus,
+          url: createPageUrl("AddFarm"),
+          color: "emerald"
+        },
+        {
+          title: "Report Disease",
+          description: "Report disease outbreak",
+          icon: FileText,
+          url: createPageUrl("ReportDisease"),
+          color: "red"
+        },
+        ...baseActions
+      ];
+    }
+
+    if (user?.role === 'veterinarian') {
+      return [
+        {
+          title: "Schedule Farm Visit",
+          description: "Plan farm inspection",
+          icon: Calendar,
+          url: createPageUrl("ScheduleVisit"),
+          color: "blue"
+        },
+        {
+          title: "Disease Reports",
+          description: "Review reported cases",
+          icon: FileText,
+          url: createPageUrl("DiseaseReports"),
+          color: "purple"
+        },
+        ...baseActions
+      ];
+    }
+
+    if (user?.role === 'extension_worker') {
+      return [
+        {
+          title: "Assign Training",
+          description: "Assign learning modules",
+          icon: BookOpen,
+          url: createPageUrl("AssignTraining"),
+          color: "amber"
+        },
+        {
+          title: "Compliance Check",
+          description: "Conduct farm audit",
+          icon: Shield,
+          url: createPageUrl("ComplianceCheck"),
+          color: "green"
+        },
+        ...baseActions
+      ];
+    }
+
+    return baseActions;
+  };
+
+  const colorClasses = {
+    emerald: {
+      bg: "bg-emerald-500",
+      text: "text-emerald-600",
+      lightBg: "bg-emerald-50",
+      hover: "hover:bg-emerald-100"
+    },
+    blue: {
+      bg: "bg-blue-500",
+      text: "text-blue-600", 
+      lightBg: "bg-blue-50",
+      hover: "hover:bg-blue-100"
+    },
+    red: {
+      bg: "bg-red-500",
+      text: "text-red-600",
+      lightBg: "bg-red-50", 
+      hover: "hover:bg-red-100"
+    },
+    purple: {
+      bg: "bg-purple-500",
+      text: "text-purple-600",
+      lightBg: "bg-purple-50",
+      hover: "hover:bg-purple-100"
+    },
+    amber: {
+      bg: "bg-amber-500",
+      text: "text-amber-600",
+      lightBg: "bg-amber-50",
+      hover: "hover:bg-amber-100"
+    },
+    green: {
+      bg: "bg-green-500",
+      text: "text-green-600",
+      lightBg: "bg-green-50",
+      hover: "hover:bg-green-100"
+    }
+  };
+
+  const actions = getActionsForRole();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.5 }}
+    >
+      <Card className="relative overflow-hidden hover:shadow-lg transition-all duration-300">
+        <div className="absolute top-0 right-0 w-24 h-24 transform translate-x-6 -translate-y-6 bg-purple-500 rounded-full opacity-10" />
+        
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-purple-50">
+              <Plus className="w-5 h-5 text-purple-600" />
+            </div>
+            <span className="text-lg font-bold text-gray-900">Quick Actions</span>
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent>
+          <div className="grid grid-cols-2 gap-3">
+            {actions.map((action, index) => (
+              <Link key={action.title} to={action.url}>
+                <Button
+                  variant="outline"
+                  className={`w-full h-auto p-4 ${colorClasses[action.color].hover} border-gray-200 hover:border-${action.color}-300 transition-all duration-200 group`}
+                >
+                  <div className="text-center">
+                    <div className={`mx-auto mb-2 p-2 rounded-lg ${colorClasses[action.color].lightBg} group-hover:scale-110 transition-transform`}>
+                      <action.icon className={`w-5 h-5 ${colorClasses[action.color].text}`} />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-medium text-xs text-gray-900">
+                        {action.title}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {action.description}
+                      </p>
+                    </div>
+                  </div>
+                </Button>
+              </Link>
+            ))}
+          </div>
+          
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <Link to={createPageUrl("Communication")}>
+              <Button variant="ghost" className="w-full justify-start gap-2">
+                <MessageCircle className="w-4 h-4" />
+                Communication Hub
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
